@@ -1,8 +1,7 @@
 Example project, utilizing:
 
+- Functional components
 - TypeScript
 - styled-components
 - Async Await
-- useEffect
-- useState
-- JSX props
+- base and custom hooks
