@@ -1,9 +1,8 @@
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, ChangeEvent, useEffect } from 'react';
 
-import { fetchData } from './utils/robots-api.utils';
-
-import CardList from './components/card-list/card-list.component';
-import SearchBox from './components/search-box/search-box.component';
+import { CardList } from './components/CardList';
+import { SearchBox } from './components/SearchBox';
+import { useGetRobotUsers } from './hooks/useGetRobotUsers';
 
 import './App.css';
 
@@ -14,39 +13,27 @@ export type Robot = {
 };
 
 const App = () => {
-  const [searchField, setsearchField] = useState('');
-  const [robots, setrobots] = useState<Robot[]>([]);
-  const [filteredRobots, setfilteredRobots] = useState(robots);
+  const { robots } = useGetRobotUsers();
 
-  useEffect(() => {
-    const getRobotUsers = async () => {
-      const users = await fetchData<Robot[]>(
-        'https://jsonplaceholder.typicode.com/users'
-      );
-      setrobots(users);
-    };
-    getRobotUsers();
-  }, []);
+  const [searchField, setSearchField] = useState('');
+  const [filteredRobots, setFilteredRobots] = useState(robots);
 
-  const onSearchChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    const searchFieldString = event.target.value.toLowerCase();
-    setsearchField(searchFieldString);
+  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchField(event.target.value);
   };
+
   useEffect(() => {
-    const newfilteredRobots = robots.filter((monster) => {
-      return monster.name.toLowerCase().includes(searchField);
-    });
-    setfilteredRobots(newfilteredRobots);
+    const newfilteredRobots = robots.filter(({ name }) =>
+      name.toLowerCase().includes(searchField.toLowerCase())
+    );
+
+    setFilteredRobots(newfilteredRobots);
   }, [robots, searchField]);
 
   return (
     <div className="App">
       <h1 className="app-title">Robot Searcher</h1>
-      <SearchBox
-        className="robots-search-box"
-        placeholder="search robots"
-        onChangeHandler={onSearchChange}
-      />
+      <SearchBox onChange={handleSearch} value={searchField} />
       <CardList robots={filteredRobots} />
     </div>
   );
